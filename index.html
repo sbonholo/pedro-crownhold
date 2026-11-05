@@ -10873,6 +10873,8 @@ function bindUI() {
     if (document.hidden && playing()) { saveNow(); if (!V.paused) togglePause(true); }
     // the audio sleeps with the tab
     if (actx) { try { const p = document.hidden ? actx.suspend() : V.gest && (V.sound || V.music) ? actx.resume() : null; if (p && p.catch) p.catch(() => {}); } catch (e) { /* audio is optional */ } }
+    // the music clock stops with the tab and starts again when it returns
+    if (document.hidden) { if (MUS.timer) { clearInterval(MUS.timer); MUS.timer = 0; } } else if (MUS.L && !MUS.timer) MUS.timer = setInterval(musicTick, 50);
   });
   window.addEventListener('pagehide', () => { if (playing()) saveNow(); });
   window.addEventListener('resize', resize);
@@ -11202,6 +11204,8 @@ window.__crownhold = {
 /* ================= loop + boot ================= */
 function frame(ts) {
   requestAnimationFrame(frame);
+  // a hidden tab simulates and draws nothing (the realm pauses and the audio sleeps on visibilitychange); no time jump on return
+  if (document.hidden) { V.last = 0; return; }
   const dtR = Math.min(0.1, Math.max(0, (ts - (V.last || ts)) / 1000)); V.last = ts;
   stepJolt(dtR);
   if (playing() && !V.paused) {

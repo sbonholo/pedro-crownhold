@@ -199,7 +199,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--edge);outl
 #dock{position:absolute;left:0;right:0;bottom:0;z-index:20;background:linear-gradient(color-mix(in srgb,var(--panel) 92%,transparent),var(--panel));border-top:1px solid var(--edge);box-shadow:0 -2px 12px color-mix(in srgb,var(--bg) 70%,transparent)}
 .dock-inner{padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .tabs{display:flex;gap:6px}
-.tab{flex:1 1 0;min-height:44px;border-radius:8px;border:1px solid color-mix(in srgb,var(--edge) 35%,transparent);background:color-mix(in srgb,var(--bg) 40%,var(--panel));font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--ink)}
+.tab{flex:1 1 0;min-height:44px;min-width:44px;border-radius:8px;border:1px solid color-mix(in srgb,var(--edge) 35%,transparent);background:color-mix(in srgb,var(--bg) 40%,var(--panel));font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--ink)}
 .tab .k{font-size:12px;color:var(--dim);font-weight:500}
 .tab[aria-selected="true"]{background:linear-gradient(color-mix(in srgb,var(--royal) 85%,var(--ink)),color-mix(in srgb,var(--royal) 60%,var(--bg)));border-color:var(--edge)}
 #dockToggle{flex:0 0 44px}
@@ -4069,7 +4069,7 @@ function hitPause(src, t) {
 }
 function floatText(x, y, txt, col, size) {
   const f = FLOAT[fIdx]; fIdx = (fIdx + 1) % FMAX;
-  f.on = 1; f.x = f.x0 = x; f.y = f.y0 = y; f.txt = txt; f.c = col; f.s = size || 11; f.life = f.max = 1.1; f.id = 0; f.v = 0; f.pop = 0;
+  f.on = 1; f.x = f.x0 = x; f.y = f.y0 = y; f.txt = txt; f.c = col; f.s = Math.max(size || 11, R3.phone || V.W < 720 ? 12 : 0); f.life = f.max = 1.1; f.id = 0; f.v = 0; f.pop = 0;
   return f;
 }
 /* ---- rewards you can watch land: coins, logs, stones and wheat fly from where they were won into the purse ---- */
@@ -4804,7 +4804,7 @@ function drawShop2D(c, tm, dtR) {
   const mp = merchantPos();
   if (mp) {
     drawWagon2D(c, mp.x, mp.y + 8, Math.cos(mp.a) < 0 ? -1 : 1, tm, mp.moving);
-    if (S.shop.m.st === 'here') { c.font = '800 11px ' + bodyFont(); c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = P.soot; c.fillStyle = P.goldHi; const t = 'Merchant ' + fmtTime(merchantLeft()); c.strokeText(t, mp.x, mp.y - 34); c.fillText(t, mp.x, mp.y - 34); }
+    if (S.shop.m.st === 'here') { c.font = '800 ' + labelPx() + ' ' + bodyFont(); c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = P.soot; c.fillStyle = P.goldHi; const t = 'Merchant ' + fmtTime(merchantLeft()); c.strokeText(t, mp.x, mp.y - 34); c.fillText(t, mp.x, mp.y - 34); }
   }
   if (fxOn('shield')) {
     const pl = V.reduced ? 0.5 : (Math.sin(tm * 2.4) + 1) / 2;
@@ -5043,7 +5043,7 @@ function render2D(dtR) {
     const lbl = cp.alive ? cp.name : cp.name + ' (burned)';
     const sub = cp.alive ? 'Level ' + cp.tier + ' ' + campTierName(cp.tier) : campRiseText(cp);
     c.strokeText(lbl, cp.x, ly); c.fillText(lbl, cp.x, ly);
-    c.font = '700 11px ' + bodyFont(); c.fillStyle = cp.alive ? P.goldHi : P.inkDim;
+    c.font = '700 ' + labelPx() + ' ' + bodyFont(); c.fillStyle = cp.alive ? P.goldHi : P.inkDim;
     c.strokeText(sub, cp.x, ly + 14); c.fillText(sub, cp.x, ly + 14);
     if (cp.alive) bar(c, cp.x, cp.y - (2.6 + 0.18 * Math.min(3, cp.tier - 1)) * TS - (cp.tier >= 3 ? 14 : 0), 64, cp.hp / cp.mhp, P.hpEnemy);
   }
@@ -5114,6 +5114,8 @@ function drawChest(c, ch, dtR, tm) {
   c.restore();
 }
 function bodyFont() { return '"Alegreya Sans","Trebuchet MS",sans-serif'; }
+/* small map labels: never under 12 px on a phone */
+function labelPx() { return R3.phone || V.W < 720 ? '12px' : '11px'; }
 function rangeRing(c, x, y, r, tm) {
   c.save(); c.fillStyle = P.ringFill; circ(c, x, y, r); c.fill();
   c.strokeStyle = P.ring; c.lineWidth = 2; c.setLineDash([10, 7]); c.lineDashOffset = V.reduced ? 0 : -tm * 8; c.stroke();
@@ -5124,7 +5126,7 @@ function workBadge(c, x, y, n) {
   c.save(); c.fillStyle = P.royalDk; c.strokeStyle = P.gold; c.lineWidth = 1.5;
   c.beginPath(); c.roundRect ? c.roundRect(x - w / 2, y - 8, w, 16, 8) : c.rect(x - w / 2, y - 8, w, 16); c.fill(); c.stroke();
   c.fillStyle = P.ink; circ(c, x - w / 2 + 7, y - 3, 2.2); c.fill(); ell(c, x - w / 2 + 7, y + 3, 3.4, 2.6); c.fill();
-  c.font = '800 11px ' + bodyFont(); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(n), x + 4, y + 0.5); c.textBaseline = 'alphabetic';
+  c.font = '800 ' + labelPx() + ' ' + bodyFont(); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(n), x + 4, y + 0.5); c.textBaseline = 'alphabetic';
   c.restore();
 }
 function drawGhost(c, tm) {

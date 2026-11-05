@@ -9260,13 +9260,17 @@ function loadAssets(bg) {
   if (!items.length) { finishLoad(staged, gen, res); return; }
   const gltf = THREE.GLTFLoader ? new THREE.GLTFLoader() : null, rgbe = THREE.RGBELoader ? new THREE.RGBELoader().setDataType(THREE.UnsignedByteType) : null;
   for (const it of items) {
+    const stageTex = t => { (staged[it.set] || (staged[it.set] = {}))[it.m] = t; settle(it, true); };
     if ((it.kind === 'hdr' && !rgbe) || (it.kind === 'glb' && !gltf)) { settle(it, false); continue; }
     fetchBytes(it, tick).then(buf => {
       if (gen !== L.gen) return;
-      if (it.kind === 'tex') texFromBytes(buf, t => { (staged[it.set] || (staged[it.set] = {}))[it.m] = t; settle(it, true); }, () => settle(it, false));
+      if (it.kind === 'tex') texFromBytes(buf, stageTex, () => settle(it, false));
       else if (it.kind === 'hdr') { R3.hdr[it.key] = hdrFromBytes(rgbe, buf); settle(it, true); }
       else gltf.parse(buf, ASSET + 'models/', g => { R3.glb[it.key] = g; settle(it, true); }, () => settle(it, false));
-    }).catch(() => settle(it, false));
+    }).catch(() => {
+      // fetch can be refused where an <img> is not (a page opened from disk): textures still try the plain image loader
+      if (it.kind === 'tex' && gen === L.gen && !it.end) new THREE.TextureLoader().load(it.url, stageTex, undefined, () => settle(it, false)); else settle(it, false);
+    });
   }
   // a slow network never holds the realm hostage: after 30 s the world goes on with what it has
   clearTimeout(L.timer); L.timer = setTimeout(() => { if (gen === L.gen) finishLoad(staged, gen, res); }, bg ? 120000 : 30000);

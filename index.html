@@ -1,7 +1,14 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Crownhold</title>
+<meta name="description" content="Crownhold: defend your kingdom in 3D. A game by Pedro.">
+<meta name="theme-color" content="#0f1214">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Pirata+One&display=swap">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 <style>
 /* Layout: the 3D war table (WebGL canvas) fills the viewport; a transparent overlay canvas on top takes input and draws bars and labels; HUD, dock, map column and overlays sit above. */
 :root{
@@ -491,6 +498,8 @@ button.card:hover{border-color:var(--edge)}
   *{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 </style>
+</head>
+<body>
 
 <div id="app">
   <canvas id="gl" aria-hidden="true" hidden></canvas>

@@ -1,0 +1,194 @@
+CROWNHOLD - third-party asset licences
+=====================================
+Compiled 2026-11-03 by the asset scout. Every file in this folder is listed below with
+its source (the exact URL it was downloaded from), the original author and the licence.
+"Modified" = resized / re-encoded / trimmed for the web; modifications are released under
+the same licence as the original.
+
+REQUIRED ATTRIBUTION (put this line in the game's credits / about box):
+
+  Horse models: Microsoft Rocketbox avatar library, Copyright (c) 2020 Microsoft, MIT License
+  (notice reproduced at the end of this file).
+
+  Tree models generated with EZ-Tree, Copyright (c) 2024 Daniel Greenheck, MIT License
+  (notice reproduced at the end of this file).
+
+Everything else is CC0 1.0 (public domain dedication, no attribution required). Credit is
+given anyway: ambientCG, Poly Haven, Kay Lousberg (KayKit), Quaternius.
+
+
+TEXTURES (textures/<set>/<set>_{albedo,normal,roughness}[_512].jpg)
+-------------------------------------------------------------------
+All normal maps are OpenGL convention (+Y). Each set is 1024 px + a 512 px copy.
+
+textures/grass/*      ambientCG "Ground037" - CC0 1.0 - author: ambientCG (Lennart Demes)
+                      https://ambientcg.com/view?id=Ground037
+                      downloaded from (packed albedo+height / normal+roughness, split by the scout):
+                      https://raw.githubusercontent.com/TokisanGames/Terrain3D/main/project/demo/assets/textures/ground037_alb_ht.png
+                      https://raw.githubusercontent.com/TokisanGames/Terrain3D/main/project/demo/assets/textures/ground037_nrm_rgh.png
+                      licence note in that repo: .../project/demo/assets/textures/asset_licenses.txt
+textures/rock/*       ambientCG "Rock023" - CC0 1.0 - author: ambientCG
+                      https://ambientcg.com/view?id=Rock023
+                      https://raw.githubusercontent.com/TokisanGames/Terrain3D/main/project/demo/assets/textures/rock023_alb_ht.png
+                      https://raw.githubusercontent.com/TokisanGames/Terrain3D/main/project/demo/assets/textures/rock023_nrm_rgh.png
+textures/dirt/*       Poly Haven "Coast Sand Rocks 02" - CC0 1.0 - author: Poly Haven (see asset page)
+                      https://polyhaven.com/a/coast_sand_rocks_02
+                      https://raw.githubusercontent.com/ludecieldev/Haunted-House/master/static/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_{diff,nor_gl,arm}_1k.jpg
+                      (roughness = G channel of the ARM map)
+textures/dirtpath/*   Poly Haven "Dirt Aerial 02" - CC0 1.0 - author: Rob Tuytel
+                      https://polyhaven.com/a/dirt_aerial_02
+                      https://raw.githubusercontent.com/playcanvas/engine/main/examples/assets/textures/terrain/dirt_aerial_02_{diff,nor}_1k.jpg
+                      (credits: .../examples/assets/textures/terrain/polyhaven.credits.txt)
+                      dirtpath_roughness*.jpg was DERIVED by the scout from the albedo (no source map) - CC0.
+textures/stonewall/*  ambientCG "Bricks076A" - CC0 1.0 - author: ambientCG
+                      https://ambientcg.com/view?id=Bricks076A
+                      https://raw.githubusercontent.com/playcanvas/engine/main/examples/assets/textures/bricks076a/{color,normal,roughness}.webp
+                      (licence note: .../bricks076a/Bricks076A-textures.txt)
+textures/brick/*      Poly Haven "Castle Brick Broken 06" - CC0 1.0 - author: Poly Haven (see asset page)
+                      https://polyhaven.com/a/castle_brick_broken_06
+                      https://raw.githubusercontent.com/ludecieldev/Haunted-House/master/static/wall/castle_brick_broken_06_1k/castle_brick_broken_06_{diff,nor_gl,arm}_1k.jpg
+textures/wood/*       ambientCG "WoodFloor043" - CC0 1.0 - author: ambientCG
+                      https://ambientcg.com/view?id=WoodFloor043
+                      https://raw.githubusercontent.com/pmndrs/market-assets/main/files/materials/wood-floor-43/WoodFloor043_1K_{Color,Normal,Roughness}.jpg
+                      (info.json in that folder: creator "ambientcg"). Normal map green channel flipped
+                      (DirectX -> OpenGL) by the scout.
+textures/bark/*       Poly Haven "Bark Brown 02" - CC0 1.0 - author: Poly Haven (see asset page)
+                      https://polyhaven.com/a/bark_brown_02
+                      from npm package @dgreenheck/ez-tree@1.1.0 (https://registry.npmjs.org/@dgreenheck/ez-tree/-/ez-tree-1.1.0.tgz)
+                      files src/lib/assets/bark/oak_{color,normal,roughness}_1k.jpg; the package's
+                      src/lib/assets/bark/README.md credits "Oak - https://polyhaven.com/a/bark_brown_02".
+textures/plaster/*    Poly Haven "Plastered Stone Wall" - CC0 1.0 - author: Poly Haven (see asset page)
+                      https://polyhaven.com/a/plastered_stone_wall
+                      https://raw.githubusercontent.com/ludecieldev/Haunted-House/master/static/grave/plastered_stone_wall_1k/plastered_stone_wall_{diff,nor_gl,arm}_1k.jpg
+textures/roof/*       Poly Haven "Roof Slates 02" - CC0 1.0 - author: Poly Haven (see asset page)
+                      https://polyhaven.com/a/roof_slates_02
+                      https://raw.githubusercontent.com/ludecieldev/Haunted-House/master/static/roof/roof_slates_02_1k/roof_slates_02_{diff,nor_gl,arm}_1k.jpg
+
+Note on the "Haunted-House" repo: it is a student copy of the Three.js Journey lesson and
+contains the unmodified Poly Haven 1k JPGs (file names identical to Poly Haven's). The
+licence that applies is Poly Haven's CC0, not the repo's.
+
+
+HDRI (hdri/)
+------------
+hdri/day_immenstadter_horn_1k.hdr   Poly Haven "Immenstadter Horn" - CC0 1.0 - author: Poly Haven (see asset page)
+                      https://polyhaven.com/a/immenstadter_horn
+                      https://raw.githubusercontent.com/pmndrs/drei-assets/master/hdri/immenstadter_horn_1k.hdr
+hdri/dusk_spruit_sunrise_1k.hdr     Poly Haven "Spruit Sunrise" - CC0 1.0 - author: Poly Haven (see asset page)
+                      https://polyhaven.com/a/spruit_sunrise
+                      https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/equirectangular/spruit_sunrise_1k.hdr
+
+
+MODELS (models/)
+----------------
+models/knight.glb      KayKit Character Pack: Adventurers 1.0 "Knight" - Kay Lousberg (www.kaylousberg.com) - CC0 1.0
+                       https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/main/addons/kaykit_character_pack_adventures/Characters/gltf/Knight.glb
+                       licence: https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/main/LICENSE.txt
+                       Modified: extra weapons/shields removed, 12 of 76 clips kept.
+models/archer.glb      same pack, "Rogue_Hooded" (.../Characters/gltf/Rogue_Hooded.glb) - CC0 1.0. Modified: only 2H crossbow kept, 11 clips.
+models/villager.glb    same pack, "Barbarian" (.../Characters/gltf/Barbarian.glb) - CC0 1.0. Modified: hat, shield, offhand/2H axes, mug removed, 11 clips.
+models/villager_b.glb  same pack, "Rogue" (.../Characters/gltf/Rogue.glb) - CC0 1.0. Modified: all weapons removed, 10 clips.
+
+models/horse.glb       Microsoft Rocketbox "Horse_Brown_01" - Copyright (c) 2020 Microsoft - MIT License
+                       https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/master/Assets/Animals/Horse_Brown_01/Export/Horse_Brown_01.fbx
+                       https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/master/Assets/Animals/Horse_Brown_01/Textures/horse_brown_{color,bump}.tga
+                       licence: https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/master/LICENSE.md
+                       Modified: FBX converted to glTF (three.js r128 FBXLoader + GLTFExporter), textures 1024 JPEG,
+                       animation clips Walk/Trot/Gallop/Idle/Graze authored procedurally by the scout (MIT, same terms).
+models/horse_saddled.glb  Microsoft Rocketbox "Horse_Brown_Saddle_01" - Copyright (c) 2020 Microsoft - MIT License
+                       https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/master/Assets/Animals/Horse_Brown_Saddle_01/Export/Horse_Brown_Saddle_01.fbx
+                       https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/master/Assets/Animals/Horse_Brown_Saddle_01/Textures/horse_brown_saddle_{color,bump}.tga
+                       https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/master/Assets/Animals/Horse_Brown_Saddle_01/Textures/horse_reins_{color,bump}.tga
+                       Modified as horse.glb.
+
+models/dragon.glb      Quaternius low-poly wyvern - Quaternius (https://quaternius.com) - CC0 1.0
+models/dragon_alt.glb  Quaternius dragon - Quaternius - CC0 1.0
+                       both from npm package @netforge/asset-library-files@0.2.0
+                       (https://registry.npmjs.org/@netforge/asset-library-files/-/asset-library-files-0.2.0.tgz),
+                       files library/lowpoly/wyvern.glb and library/lowpoly/dragon.glb; the package NOTICE states these are
+                       Quaternius models published on Poly Pizza as Public Domain (CC0), with CC-BY models excluded.
+                       (The npm package itself is MIT; the art is CC0.) Modified: meshopt decoded, clip-name prefixes stripped.
+
+models/tree_oak.glb, models/tree_ash.glb, models/tree_pine.glb, models/bush.glb
+                       Generated by the scout with EZ-Tree (npm @dgreenheck/ez-tree@1.1.0, Copyright (c) 2024 Daniel Greenheck,
+                       MIT) presets "Oak Large", "Ash Medium", "Pine Large", "Bush 1" (reduced LOD), exported with three.js GLTFExporter.
+                       Embedded textures:
+                         bark  = Poly Haven bark_brown_02 (CC0) - see textures/bark above (pine uses it too instead of its default bark)
+                         leaves = ez-tree src/lib/assets/leaves/{oak,ash,pine}_color.png, shipped inside the MIT-licensed
+                                  package; the package does not name an upstream source for the leaf images (see caveat).
+
+models/rock_boulder.glb, models/rock_slab.glb, models/rock_tall.glb
+                       Procedural meshes made by the scout (CC0), textured with ambientCG Rock023 (CC0, see textures/rock).
+
+
+models/house_a.glb house_b.glb tower.glb castle.glb barracks.glb church.glb tavern.glb well.glb windmill.glb
+                       KayKit Medieval Hexagon Pack 1.0 - Kay Lousberg - CC0 1.0
+                       https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Medieval-Hexagon-Pack-1.0/main/addons/kaykit_medieval_hexagon_pack/Assets/gltf/buildings/red/
+                         building_home_A_red, building_home_B_red, building_tower_A_red, building_castle_red,
+                         building_barracks_red, building_church_red, building_tavern_red, building_well_red,
+                         building_windmill_red (.gltf + .bin + hexagons_medieval.png)
+models/wall.glb wall_gate.glb wall_corner.glb palisade.glb
+                       same pack, .../Assets/gltf/buildings/neutral/ wall_straight, wall_straight_gate,
+                       wall_corner_A_outside, fence_wood_straight
+models/tent.glb        same pack, .../Assets/gltf/decoration/props/tent
+                       licence: https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Medieval-Hexagon-Pack-1.0/main/LICENSE.txt
+                       Modified: packed to GLB, quantized (KHR_mesh_quantization).
+
+
+CAVEATS
+-------
+- EZ-Tree leaf textures: distributed under the package's MIT licence, but the package gives no upstream
+  source for the four leaf PNGs. If you need a fully traceable chain, replace the leaf card texture.
+- Spruit Sunrise HDRI shows modern electricity pylons on the horizon (fine for lighting; avoid as visible sky).
+- No asset here copies a specific existing game's characters or look; KayKit and Quaternius are generic
+  original CC0 packs.
+
+
+MIT LICENSE - Microsoft Rocketbox
+---------------------------------
+MIT License
+
+Copyright (c) 2020 Microsoft
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+MIT LICENSE - EZ-Tree
+---------------------
+MIT License
+
+Copyright (c) 2024 Daniel Greenheck
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

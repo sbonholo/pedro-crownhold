@@ -5375,8 +5375,8 @@ const TEX_REAL = { grass:0.8, rock:0.5, plaster:1.5, dirt:0.9 };
 const GRASS_TINT = [0.66, 0.8, 0.52];   // the scanned meadow is bright and straw coloured: pull it toward green
 const TERRAIN_SETS = ['grass', 'dirt', 'dirtpath', 'rock'];
 const BUILD_SETS = ['stonewall', 'brick', 'wood', 'bark', 'plaster', 'roof'];
-const GLB_FILES = { horse:'models/horse_saddled.glb.json', oak:'models/tree_oak.glb.json', ash:'models/tree_ash.glb.json', pine:'models/tree_pine.glb.json', bush:'models/bush.glb.json', boulder:'models/rock_boulder.glb.json', slab:'models/rock_slab.glb.json', tall:'models/rock_tall.glb.json' };
-const HDR_FILES = { day:'hdri/day_immenstadter_horn_1k.hdr.json', dusk:'hdri/dusk_spruit_sunrise_1k.hdr.json' };
+const GLB_FILES = { horse:'models/horse_saddled.glb', oak:'models/tree_oak.glb', ash:'models/tree_ash.glb', pine:'models/tree_pine.glb', bush:'models/bush.glb', boulder:'models/rock_boulder.glb', slab:'models/rock_slab.glb', tall:'models/rock_tall.glb' };
+const HDR_FILES = { day:'hdri/day_immenstadter_horn_1k.hdr', dusk:'hdri/dusk_spruit_sunrise_1k.hdr' };
 /* the sun in both skies sits south-east (u = 0.6 in the HDRIs); elevations are kept readable for play */
 const SUN = { day:{ az:0.63, el:0.6 }, dusk:{ az:0.63, el:0.27 } };
 const R3 = {
@@ -9168,43 +9168,76 @@ function setMode(on, why) {
 function showGlNote() { const n = $('glNote'); if (!n) return; n.hidden = false; clearTimeout(R3.noteHide); R3.noteHide = setTimeout(() => { n.hidden = true; }, 9000); }
 
 /* ---------- loading the scanned textures, the HDR skies and the models ---------- */
-const loadFrac = () => R3.load.total ? (R3.load.done + R3.load.failed) / R3.load.total : 0;
-/* HDR skies are published as base64 JSON (artifacts do not serve .hdr): decode, parse, build the texture as RGBELoader.load would */
-function hdrJson(rgbe, url, ok, bad) {
-  fetch(url).then(r => { if (!r.ok) throw new Error('hdr ' + r.status); return r.json(); }).then(j => {
-    const s = atob(j.b64), u8 = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u8[i] = s.charCodeAt(i);
-    const d = rgbe.parse(u8.buffer); if (!d) throw new Error('hdr parse');
-    const t = new THREE.DataTexture(d.data, d.width, d.height, d.format, d.type);
-    t.encoding = THREE.RGBEEncoding; t.minFilter = t.magFilter = THREE.NearestFilter; t.generateMipmaps = false; t.flipY = true; t.needsUpdate = true;
-    ok(t);
-  }).catch(() => bad());
+/* progress counts real bytes: a file's size comes from its Content-Length, or a typical size until its headers arrive */
+const LOAD_EST = { tex:250000, tex512:70000, glb:450000, hdr:1600000 };
+const loadFrac = () => {
+  const L = R3.load, its = L.items || [];
+  if (!its.length) return L.total ? (L.done + L.failed) / L.total : 0;
+  let got = 0, all = 0;
+  for (const it of its) { all += it.size; got += it.end ? it.size : Math.min(it.got, it.size); }
+  return all ? Math.min(1, got / all) : 0;
+};
+/* fetch a file as an ArrayBuffer, counting its bytes as they arrive */
+function fetchBytes(it, onBytes) {
+  return fetch(it.url).then(r => {
+    if (!r.ok) throw new Error(it.url + ' ' + r.status);
+    const n = +r.headers.get('content-length') || 0;
+    if (n > 0 && !r.headers.get('content-encoding')) it.size = n;
+    if (!r.body || !r.body.getReader) return r.arrayBuffer().then(b => { it.got = b.byteLength; return b; });
+    const rd = r.body.getReader(), parts = [];
+    const pump = () => rd.read().then(c => {
+      if (c.done) { const out = new Uint8Array(it.got); let o = 0; for (const p of parts) { out.set(p, o); o += p.length; } return out.buffer; }
+      parts.push(c.value); it.got += c.value.length; if (it.got > it.size) it.size = it.got; onBytes();
+      return pump();
+    });
+    return pump();
+  });
+}
+/* a .jpg from bytes, made the way THREE.TextureLoader makes it (RGB format for a jpeg), decoded off the main thread where the browser can */
+function texFromBytes(buf, ok, bad) {
+  const url = URL.createObjectURL(new Blob([buf], { type:'image/jpeg' })), img = new Image();
+  const done = () => { URL.revokeObjectURL(url); const t = new THREE.Texture(img); t.format = THREE.RGBFormat; t.needsUpdate = true; ok(t); };
+  const fail = () => { URL.revokeObjectURL(url); bad(); };
+  img.src = url;
+  if (img.decode) img.decode().then(done, fail); else { img.onload = done; img.onerror = fail; }
+}
+/* an HDR sky from bytes: parse, then build the texture as RGBELoader.load would */
+function hdrFromBytes(rgbe, buf) {
+  const d = rgbe.parse(buf); if (!d) throw new Error('hdr parse');
+  const t = new THREE.DataTexture(d.data, d.width, d.height, d.format, d.type);
+  t.encoding = THREE.RGBEEncoding; t.minFilter = t.magFilter = THREE.NearestFilter; t.generateMipmaps = false; t.flipY = true; t.needsUpdate = true;
+  return t;
 }
 function loadAssets() {
   if (!R3.ok) return;
   const Q = qv(), L = R3.load, res = Q.tex, suffix = res >= 1024 ? '' : '_512';
   L.res = res; L.ready = false; L.started = true; L.t0 = performance.now(); L.gen = (L.gen || 0) + 1;
   const gen = L.gen, items = [];
-  const tl = new THREE.TextureLoader();
   for (const set of TERRAIN_SETS.concat(BUILD_SETS)) {
     if (R3.T[set] && R3.T[set].res === res) continue;
     const maps = TERRAIN_SETS.includes(set) ? ['albedo', 'normal'] : ['albedo', 'normal', 'roughness'];
-    for (const m of maps) items.push({ kind:'tex', set, m, url:ASSET + 'textures/' + set + '/' + set + '_' + m + suffix + '.jpg' });
+    for (const m of maps) items.push({ kind:'tex', set, m, url:ASSET + 'textures/' + set + '/' + set + '_' + m + suffix + '.jpg', size:res >= 1024 ? LOAD_EST.tex : LOAD_EST.tex512 });
   }
-  if (!R3.hdr.day) items.push({ kind:'hdr', key:'day', url:ASSET + HDR_FILES.day });
-  if (!R3.hdr.dusk && R3.q !== 'low') items.push({ kind:'hdr', key:'dusk', url:ASSET + HDR_FILES.dusk });
+  if (!R3.hdr.day) items.push({ kind:'hdr', key:'day', url:ASSET + HDR_FILES.day, size:LOAD_EST.hdr });
+  if (!R3.hdr.dusk && R3.q !== 'low') items.push({ kind:'hdr', key:'dusk', url:ASSET + HDR_FILES.dusk, size:LOAD_EST.hdr });
   const glbs = ['horse', 'boulder', 'slab', 'tall'].concat(Q.near > 0 ? ['oak', 'ash', 'pine'] : []).concat(Q.bush > 0 && !Q.proxy ? ['bush'] : []);
-  for (const k of glbs) if (!R3.glb[k]) items.push({ kind:'glb', key:k, url:ASSET + GLB_FILES[k] });
-  L.total = items.length; L.done = 0; L.failed = 0;
+  for (const k of glbs) if (!R3.glb[k]) items.push({ kind:'glb', key:k, url:ASSET + GLB_FILES[k], size:LOAD_EST.glb });
+  for (const it of items) { it.got = 0; it.end = false; }
+  L.items = items; L.total = items.length; L.done = 0; L.failed = 0;
   const staged = {};
-  const settle = ok => { if (gen !== L.gen) return; ok ? L.done++ : L.failed++; loadProgress(); if (L.done + L.failed >= L.total) finishLoad(staged); };
+  let raf = 0;
+  const tick = () => { if (gen !== L.gen || raf) return; raf = requestAnimationFrame(() => { raf = 0; if (gen === L.gen && !L.ready) loadProgress(); }); };
+  const settle = (it, ok) => { if (gen !== L.gen || it.end) return; it.end = true; ok ? L.done++ : L.failed++; loadProgress(); if (L.done + L.failed >= L.total) finishLoad(staged); };
   if (!items.length) { finishLoad(staged); return; }
   const gltf = THREE.GLTFLoader ? new THREE.GLTFLoader() : null, rgbe = THREE.RGBELoader ? new THREE.RGBELoader().setDataType(THREE.UnsignedByteType) : null;
   for (const it of items) {
-    try {
-      if (it.kind === 'tex') tl.load(it.url, t => { (staged[it.set] || (staged[it.set] = {}))[it.m] = t; settle(true); }, undefined, () => settle(false));
-      else if (it.kind === 'hdr') { if (!rgbe) { settle(false); continue; } hdrJson(rgbe, it.url, t => { R3.hdr[it.key] = t; settle(true); }, () => settle(false)); }
-      else { if (!gltf) { settle(false); continue; } gltf.load(it.url, g => { R3.glb[it.key] = g; settle(true); }, undefined, () => settle(false)); }
-    } catch (e) { settle(false); }
+    if ((it.kind === 'hdr' && !rgbe) || (it.kind === 'glb' && !gltf)) { settle(it, false); continue; }
+    fetchBytes(it, tick).then(buf => {
+      if (gen !== L.gen) return;
+      if (it.kind === 'tex') texFromBytes(buf, t => { (staged[it.set] || (staged[it.set] = {}))[it.m] = t; settle(it, true); }, () => settle(it, false));
+      else if (it.kind === 'hdr') { R3.hdr[it.key] = hdrFromBytes(rgbe, buf); settle(it, true); }
+      else gltf.parse(buf, ASSET + 'models/', g => { R3.glb[it.key] = g; settle(it, true); }, () => settle(it, false));
+    }).catch(() => settle(it, false));
   }
   // a slow network never holds the realm hostage: after 30 s the world goes on with what it has
   clearTimeout(L.timer); L.timer = setTimeout(() => { if (gen === L.gen && !L.ready) finishLoad(staged); }, 30000);

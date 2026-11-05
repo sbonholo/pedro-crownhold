@@ -13,6 +13,9 @@ Made by **Pedro** with Claude.
 - `vendor/fonts/`: Pirata One and Alegreya Sans, latin subset woff2 from `@fontsource` (SIL Open Font License, texts alongside).
 - `assets/models/*.glb`, `assets/hdri/*.hdr`: binary models and HDR skies. `assets/textures/<set>/`: 1024 px textures plus a `_512` copy.
 
+## Publishing the Claude Artifact
+The artifact host only serves standard web types (no `.glb`/`.hdr`). Run `python3 tools/build-artifact.py`: it writes `dist/artifact/` with `ASSET_WRAPPED = true` and the models/skies as base64 `*.glb.json`/`*.hdr.json` wrappers. Publish `dist/artifact/index.html` with those wrappers plus `assets/textures`, `assets/LICENSES.txt` and `vendor/`.
+
 ## Loading and devices
 - Phones use the 512 px textures and smaller shadow maps. Desktops start on the 512 px textures, then swap in the 1024 px ones in the background.
 - The loading bar counts downloaded bytes.

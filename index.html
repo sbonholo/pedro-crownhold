@@ -5524,8 +5524,8 @@ function qv() {
 function qvMake() {
   const b = QUAL[R3.q] || QUAL.medium, ph = R3.phone;
   return Object.assign({}, b, {
-    tex:ph && R3.q !== 'high' ? 512 : b.tex,
-    shadow:Math.min(ph ? (R3.q === 'high' ? 2048 : 1024) : b.shadow, R3.maxTex || 4096),
+    tex:ph ? 512 : b.tex,   // phones always use the 512 px texture set
+    shadow:Math.min(ph ? (R3.q === 'low' ? 512 : 1024) : b.shadow, R3.maxTex || 4096),   // smaller shadow maps on phones: less memory, faster frames
     grass:Math.round(b.grass * (ph ? 0.55 : 1)), near:ph ? (R3.q === 'high' ? 30 : 0) : b.near, bush:ph ? Math.round(b.bush / 2) : b.bush,
     pr:Math.min(window.devicePixelRatio || 1, ph ? (R3.q === 'low' ? 1 : 1.5) : (R3.q === 'low' ? 1 : R3.q === 'medium' ? 1.5 : 2)),
   });
@@ -5662,7 +5662,7 @@ function applyQuality(first) {
   const sh = R3.sun.shadow;
   if (sh.mapSize.x !== Q.shadow) { sh.mapSize.set(Q.shadow, Q.shadow); if (sh.map) { sh.map.dispose(); sh.map = null; } }
   R3.U.wind.value = V.reduced ? 0.35 : 1;
-  if (!first) { R3.worldKey = ''; if (R3.post) disposePost(); if (R3.load.started && (R3.load.res !== Q.tex || (Q.near > 0 && !R3.glb.oak) || (Q.bush > 0 && !Q.proxy && !R3.glb.bush) || (R3.q !== 'low' && !R3.hdr.dusk))) loadAssets(); }
+  if (!first) { R3.worldKey = ''; if (R3.post) disposePost(); if (R3.load.started && (R3.load.goal !== Q.tex || (Q.near > 0 && !R3.glb.oak) || (Q.bush > 0 && !Q.proxy && !R3.glb.bush) || (R3.q !== 'low' && !R3.hdr.dusk))) loadAssets(); }
   resize3D();
 }
 function setQuality(q) {
@@ -9208,10 +9208,14 @@ function hdrFromBytes(rgbe, buf) {
   t.encoding = THREE.RGBEEncoding; t.minFilter = t.magFilter = THREE.NearestFilter; t.generateMipmaps = false; t.flipY = true; t.needsUpdate = true;
   return t;
 }
-function loadAssets() {
+/* bg: a quiet second pass that swaps 1024 px textures in after the realm is already up on the 512 px set */
+function loadAssets(bg) {
   if (!R3.ok) return;
-  const Q = qv(), L = R3.load, res = Q.tex, suffix = res >= 1024 ? '' : '_512';
-  L.res = res; L.ready = false; L.started = true; L.t0 = performance.now(); L.gen = (L.gen || 0) + 1;
+  const Q = qv(), L = R3.load, goal = Q.tex;
+  // the first load always uses the light 512 px textures (phones keep them; desktops upgrade in the background)
+  const first = !bg && goal > 512 && !TERRAIN_SETS.concat(BUILD_SETS).some(s => R3.T[s] && R3.T[s].real);
+  const res = first ? 512 : goal, suffix = res >= 1024 ? '' : '_512';
+  L.goal = goal; L.bg = !!bg; if (!bg) L.ready = false; L.started = true; L.t0 = performance.now(); L.gen = (L.gen || 0) + 1;
   const gen = L.gen, items = [];
   for (const set of TERRAIN_SETS.concat(BUILD_SETS)) {
     if (R3.T[set] && R3.T[set].res === res) continue;
@@ -9227,8 +9231,8 @@ function loadAssets() {
   const staged = {};
   let raf = 0;
   const tick = () => { if (gen !== L.gen || raf) return; raf = requestAnimationFrame(() => { raf = 0; if (gen === L.gen && !L.ready) loadProgress(); }); };
-  const settle = (it, ok) => { if (gen !== L.gen || it.end) return; it.end = true; ok ? L.done++ : L.failed++; loadProgress(); if (L.done + L.failed >= L.total) finishLoad(staged); };
-  if (!items.length) { finishLoad(staged); return; }
+  const settle = (it, ok) => { if (gen !== L.gen || it.end) return; it.end = true; ok ? L.done++ : L.failed++; if (!bg) loadProgress(); if (L.done + L.failed >= L.total) finishLoad(staged, gen, res); };
+  if (!items.length) { finishLoad(staged, gen, res); return; }
   const gltf = THREE.GLTFLoader ? new THREE.GLTFLoader() : null, rgbe = THREE.RGBELoader ? new THREE.RGBELoader().setDataType(THREE.UnsignedByteType) : null;
   for (const it of items) {
     if ((it.kind === 'hdr' && !rgbe) || (it.kind === 'glb' && !gltf)) { settle(it, false); continue; }
@@ -9240,23 +9244,25 @@ function loadAssets() {
     }).catch(() => settle(it, false));
   }
   // a slow network never holds the realm hostage: after 30 s the world goes on with what it has
-  clearTimeout(L.timer); L.timer = setTimeout(() => { if (gen === L.gen && !L.ready) finishLoad(staged); }, 30000);
+  clearTimeout(L.timer); L.timer = setTimeout(() => { if (gen === L.gen) finishLoad(staged, gen, res); }, bg ? 120000 : 30000);
 }
-function finishLoad(staged) {
-  const L = R3.load; if (L.ready) return;
-  L.ready = true; clearTimeout(L.timer);
+function finishLoad(staged, gen, res) {
+  const L = R3.load; if (gen !== L.gen || L.fin === gen) return;
+  L.fin = gen; L.ready = true; L.bg = false; L.res = res; clearTimeout(L.timer);
   for (const set in staged) {
     const s = staged[set]; if (!s.albedo) continue;
     s.albedo.encoding = THREE.sRGBEncoding;
     for (const t of [s.albedo, s.normal, s.roughness]) if (t) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = R3.aniso || 1; }
     const old = R3.T[set];
-    R3.T[set] = { map:s.albedo, normal:s.normal || texSet(set).normal, rough:s.roughness || null, real:true, res:L.res };
+    R3.T[set] = { map:s.albedo, normal:s.normal || texSet(set).normal, rough:s.roughness || null, real:true, res };
     for (const m of R3.matsBySet[set] || []) realize(m, R3.T[set]);
     if (old && old.real) for (const t of [old.map, old.normal, old.rough]) if (t && t !== R3.T[set].map && t !== R3.T[set].normal && t !== R3.T[set].rough) t.dispose();
   }
   if (R3.hdr.day || R3.hdr.dusk) hdrEnv();
   R3.worldKey = '';
   loadProgress();
+  // desktop: the realm is up on the 512 px textures; fetch the 1024 px set quietly
+  if (res < L.goal) setTimeout(() => { if (L.fin === gen && L.gen === gen) loadAssets(true); }, 400);
 }
 function loadProgress() {
   const f = loadFrac(), pct = Math.round(f * 100);

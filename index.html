@@ -7,7 +7,17 @@
 <meta name="description" content="Crownhold: defend your kingdom in 3D. A game by Pedro.">
 <meta name="theme-color" content="#0f1214">
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Pirata+One&display=swap">
+<link rel="preload" href="vendor/fonts/pirata-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="vendor/fonts/alegreya-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="vendor/three/three.min.js" as="script">
+<style>
+/* fonts are self-hosted (latin subset, SIL OFL 1.1, from @fontsource): no third-party requests at runtime */
+@font-face{font-family:'Pirata One';font-style:normal;font-weight:400;font-display:swap;src:url(vendor/fonts/pirata-one-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Alegreya Sans';font-style:normal;font-weight:400;font-display:swap;src:url(vendor/fonts/alegreya-sans-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Alegreya Sans';font-style:normal;font-weight:500;font-display:swap;src:url(vendor/fonts/alegreya-sans-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Alegreya Sans';font-style:normal;font-weight:700;font-display:swap;src:url(vendor/fonts/alegreya-sans-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Alegreya Sans';font-style:normal;font-weight:800;font-display:swap;src:url(vendor/fonts/alegreya-sans-latin-800-normal.woff2) format('woff2')}
+</style>
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 <style>
 /* Layout: the 3D war table (WebGL canvas) fills the viewport; a transparent overlay canvas on top takes input and draws bars and labels; HUD, dock, map column and overlays sit above. */
@@ -743,10 +753,10 @@ button.card:hover{border-color:var(--edge)}
     </div>
   </section>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
+<script src="vendor/three/three.min.js"></script>
+<script src="vendor/three/GLTFLoader.js"></script>
+<script src="vendor/three/RGBELoader.js"></script>
+<script src="vendor/three/SkeletonUtils.js"></script>
 <script>
 (() => {
 'use strict';
